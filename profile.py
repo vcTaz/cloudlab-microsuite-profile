@@ -171,18 +171,21 @@ for i in range(params.nodeCount):
         node.startVNC()
         pass
 
-    # Fetch and execute the startup script from GitHub
-    # Replace 'your_github_username' and 'your_repository_name' with your actual details
-    github_raw_url = "https://raw.githubusercontent.com/vcTaz/MicroSuite/main/setup_experiment.sh" # Assuming your script is in MicroSuite/setup_experiment.sh
+    # Install the repository containing your setup script
+    node.addService(pg.Install(
+        url="https://github.com/vcTaz/MicroSuite/archive/main.tar.gz",  # IMPORTANT: Check if your default branch is 'main' or 'master'
+        path='/local/MicroSuite_repo' # A sub-directory to keep it organized
+    ))
 
-    # Install the script to a temporary local path
-    node.addService(pg.Install(url=github_raw_url, path="/tmp/setup_experiment.sh"))
-
-    # Make the script executable and run it, passing parameters
-    # The command should be 'sudo sh /tmp/setup_experiment.sh <arg1> <arg2>'
+    # Then, execute the script. The path will be /local/MicroSuite_repo/MicroSuite-main/setup_experiment.sh
+    # IMPORTANT: Adjust 'MicroSuite-main' to 'MicroSuite-master' if your repo's default branch is 'master'
+    
+    # Pass Git username and email as environment variables to the script using .format()
     node.addService(pg.Execute(
         shell="sh",
-        command=f"sudo chmod +x /tmp/setup_experiment.sh && sudo /tmp/setup_experiment.sh \"{params.gitUsername}\" \"{params.gitUserEmail}\""
+        command="export GIT_USERNAME='{0}' && export GIT_USEREMAIL='{1}' && sudo sh /local/MicroSuite_repo/MicroSuite-main/setup_experiment.sh >> /local/logs/startup_script.log 2>&1".format(
+            params.gitUsername, params.gitUserEmail
+        )
     ))
 
 # Print the RSpec to the enclosing page.
