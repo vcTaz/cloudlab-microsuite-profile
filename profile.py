@@ -171,50 +171,19 @@ for i in range(params.nodeCount):
         node.startVNC()
         pass
 
-    # Your custom startup script
-    startup_commands = """
-sudo mkfs.ext4 /dev/sda4
-sudo /usr/local/etc/emulab/mkextrafs.pl /mydata
-sudo blkid /dev/sda4
+    # Fetch and execute the startup script from GitHub
+    # Replace 'your_github_username' and 'your_repository_name' with your actual details
+    github_raw_url = "https://raw.githubusercontent.com/vcTaz/MicroSuite/main/setup_experiment.sh" # Assuming your script is in MicroSuite/setup_experiment.sh
 
-sudo mkdir /mnt/newdata
-sudo mount /dev/sda4 /mnt/newdata
-echo "/dev/sda4 /mnt/newdata ext4 defaults 0 0" | sudo tee -a /etc/fstab
-df -h | grep /mnt/newdata
-cd /mnt/newdata/
-sudo chmod -R g+w ./
+    # Install the script to a temporary local path
+    node.addService(pg.Install(url=github_raw_url, path="/tmp/setup_experiment.sh"))
 
-cd /
-sudo su -c "chmod -R 777 /mnt/newdata/"
-exit
-cd /mnt/newdata/
-
-git clone https://github.com/svassi04/MicroSuite.git
-cd MicroSuite
-
-sudo sh setup_node_mydata.sh
-
-sudo docker compose up -d
-
-sudo docker ps
-# Find the container ID, then execute bash inside it.
-# This part cannot be automated easily for a specific container in a generic startup script,
-# as the container ID changes. You'll need to manually execute this after the experiment starts
-# and docker compose is up.
-# For demonstration, I'm keeping the command, but you'd replace <container_id> after starting.
-# sudo docker exec -it <container_id> bash 
-
-
-cd MicroSuite
-git remote add fork https://github.com/svassi04/MicroSuite.git
-git fetch fork
-git config --global user.name "{}"
-git config --global user.email "{}"
-git stash save "Stash before merging from fork"
-git merge fork/master
-""".format(params.gitUsername, params.gitUserEmail)
-
-    node.addService(pg.Execute(shell="sh", command=startup_commands))
+    # Make the script executable and run it, passing parameters
+    # The command should be 'sudo sh /tmp/setup_experiment.sh <arg1> <arg2>'
+    node.addService(pg.Execute(
+        shell="sh",
+        command=f"sudo chmod +x /tmp/setup_experiment.sh && sudo /tmp/setup_experiment.sh \"{params.gitUsername}\" \"{params.gitUserEmail}\""
+    ))
 
 # Print the RSpec to the enclosing page.
 pc.printRequestRSpec(request)
