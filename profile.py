@@ -1,3 +1,11 @@
+"""Modified version of the multi-node-cluster, that simplifys the start-up
+process of MicroSuite.
+
+Instructions:
+Wait for the experiment to start, and then log into one or more of the nodes
+by clicking on them in the toplogy, and choosing the `shell` menu option.
+Use `sudo` to run root commands. 
+"""
 # Import the Portal object.
 import geni.portal as portal
 # Import the ProtoGENI library.
