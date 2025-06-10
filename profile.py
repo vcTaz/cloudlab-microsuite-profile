@@ -6,6 +6,7 @@ Wait for the experiment to start, and then log into one or more of the nodes
 by clicking on them in the toplogy, and choosing the `shell` menu option.
 Use `sudo` to run root commands. 
 """
+
 # Import the Portal object.
 import geni.portal as portal
 # Import the ProtoGENI library.
@@ -17,7 +18,7 @@ import geni.rspec.emulab as emulab
 pc = portal.Context()
 
 # Create a Request object to start building the RSpec.
-request = pc.makeRequestRSpec() # THIS IS THE ONLY CALL TO pc.makeRequestRSpec()
+request = pc.makeRequestRSpec()
 
 # Variable number of nodes.
 pc.defineParameter("nodeCount", "Number of Nodes", portal.ParameterType.INTEGER, 1,
@@ -72,7 +73,7 @@ pc.defineParameter("bestEffort",  "Best Effort", portal.ParameterType.BOOLEAN, F
                      longDescription="For very large lans, you might get an error saying 'not enough bandwidth.' " +
                      "This options tells the resource mapper to ignore bandwidth and assume you know what you " +
                      "are doing, just give me the lan I ask for (if enough nodes are available).")
-                    
+                     
 # Sometimes you want all of nodes on the same switch, Note that this option can make it impossible
 # for your experiment to map.
 pc.defineParameter("sameSwitch",  "No Interswitch Links", portal.ParameterType.BOOLEAN, False,
@@ -102,13 +103,6 @@ pc.defineParameter("tempFileSystemMount", "Temporary Filesystem Mount Point",
                     longDescription="Mount the temporary file system at this mount point; in general you " +
                     "you do not need to change this, but we provide the option just in case your software " +
                     "is finicky.")
-
-# Define parameters for Git configuration
-pc.defineParameter("gitUsername", "Git User Name", portal.ParameterType.STRING, "your_username",
-                    longDescription="Your Git username for configuring git config --global user.name")
-pc.defineParameter("gitUserEmail", "Git User Email", portal.ParameterType.STRING, "your_email@example.com",
-                    longDescription="Your Git user email for configuring git config --global user.email")
-
 
 # Retrieve the values the user specifies during instantiation.
 params = pc.bindParameters()
@@ -178,22 +172,21 @@ for i in range(params.nodeCount):
     if params.startVNC:
         node.startVNC()
         pass
+    pass
 
-    # Install the MicroSuite repository from your GitHub (master branch)
+    # --- START of changed/added lines ---
+    # Install your specific github repo for setup scripts
     node.addService(pg.Install(
-        url="https://github.com/vcTaz/MicroSuite/archive/master.tar.gz",  # Corrected for 'master' branch
-        path='/local/MicroSuite_repo' # A sub-directory to keep it organized
-    ))
-
-    # Execute the setup script from the downloaded MicroSuite repository
-    # The extracted path for a 'master' branch will be MicroSuite-master/
-    # Pass Git username and email as environment variables to the script using .format()
+        url="https://github.com/vcTaz/cloudlab-microsuite-profile/archive/main.tar.gz",
+        path='/local'))
+    # Rename the extracted directory to something simpler
+    node.addService(pg.Execute(
+        shell="sh", command="sudo mv /local/cloudlab-microsuite-profile-main /local/microsuite-profile"))
+    # Execute your setup script
     node.addService(pg.Execute(
         shell="sh",
-        command="export GIT_USERNAME='{0}' && export GIT_USEREMAIL='{1}' && sudo sh /local/MicroSuite_repo/MicroSuite-master/setup_experiment.sh >> /local/logs/startup_script.log 2>&1".format(
-            params.gitUsername, params.gitUserEmail
-        )
-    ))
-
+        command="sudo /local/microsuite-profile/setup_experiment.sh >> /local/logs/setup_experiment.log 2>&1"))
+    # --- END of changed/added lines ---
+    
 # Print the RSpec to the enclosing page.
 pc.printRequestRSpec(request)
