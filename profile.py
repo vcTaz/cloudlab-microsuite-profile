@@ -1,6 +1,6 @@
 """
 A CloudLab profile to measure process-level idleness of HDSearch
-from the MicroSuites (μSuite) benchmark suite.
+from the MicroSuites (uSuite) benchmark suite.
 
 This profile extends a generic multi-node setup to dedicate the first node
 to the HDSearch experiment with detailed profiling and power measurements.
