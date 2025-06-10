@@ -1,3 +1,25 @@
+You're getting `IllegalParameterValueError` because the `defaultValue` you've specified for the `osImage` parameter is not *exactly* one of the URNs listed in your `imageList`.
+
+Let's compare:
+
+*   **Your `defaultValue`:** `'urn:publicid:IDN+emulab.net+image+emulab/ubuntu2204'`
+*   **The URN for Ubuntu 22.04 in your `imageList`:** `'urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU22-64-STD'`
+
+These are different strings! CloudLab's portal module requires the `defaultValue` to be an exact match for one of the first elements (the URNs) in the tuples provided in `imageList`.
+
+**The fix is to change the default value to the correct URN from your `imageList`:**
+
+```python
+# Change this line:
+#                    'urn:publicid:IDN+emulab.net+image+emulab/ubuntu2204', # Default to Ubuntu 22.04 for HDSearch
+
+# To this:
+                   'urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU22-64-STD', # Default to Ubuntu 22.04 for HDSearch
+```
+
+Here's the corrected `profile.py`:
+
+```python
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
@@ -37,19 +59,23 @@ pc.defineParameter("nodeCount", "Number of Nodes", portal.ParameterType.INTEGER,
                    longDescription="For the HDSearch experiment, 1 node is typically sufficient. " +
                    "If you specify more than one node, only the first node will be configured for HDSearch.")
 
+# Define the list of available images.
+imageList = [
+    ('default', 'Default Image'),
+    ('urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU18-64-STD', 'UBUNTU 18.04'),
+    ('urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU20-64-STD', 'UBUNTU 20.04'),
+    ('urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU22-64-STD', 'UBUNTU 22.04'), # This is the URN you need to use for default
+    ('urn:publicid:IDN+emulab.net+image+emulab-ops//CENTOS7-64-STD',  'CENTOS 7'),
+    ('urn:publicid:IDN+emulab.net+image+emulab-ops//CENTOS8-64-STD',  'CENTOS 8'),
+    ('urn:publicid:IDN+emulab.net+image+emulab-ops//FBSD114-64-STD', 'FreeBSD 11.4'),
+    ('urn:publicid:IDN+emulab.net+image+emulab-ops//FBSD122-64-STD', 'FreeBSD 12.2')
+]
+
 # Force a specific OS image for the HDSearch node (Ubuntu 22.04 recommended for tools).
-# The user's list has default, but we'll override for node0.
 pc.defineParameter("osImage", "Select OS image",
                    portal.ParameterType.IMAGE,
-                   'urn:publicid:IDN+emulab.net+image+emulab/ubuntu2204', # Default to Ubuntu 22.04 for HDSearch
-                   [('default', 'Default Image'),
-                    ('urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU18-64-STD', 'UBUNTU 18.04'),
-                    ('urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU20-64-STD', 'UBUNTU 20.04'),
-                    ('urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU22-64-STD', 'UBUNTU 22.04'), # Explicitly added
-                    ('urn:publicid:IDN+emulab.net+image+emulab-ops//CENTOS7-64-STD',  'CENTOS 7'),
-                    ('urn:publicid:IDN+emulab.net+image+emulab-ops//CENTOS8-64-STD',  'CENTOS 8'),
-                    ('urn:publicid:IDN+emulab.net+image+emulab-ops//FBSD114-64-STD', 'FreeBSD 11.4'),
-                    ('urn:publicid:IDN+emulab.net+image+emulab-ops//FBSD122-64-STD', 'FreeBSD 12.2')],
+                   'urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU22-64-STD', # CORRECTED DEFAULT VALUE
+                   imageList, # Use the list defined above
                    longDescription="For HDSearch, Ubuntu 22.04 is recommended. " +
                    "The first node will use this image regardless of selection if specific for HDSearch.")
 
@@ -211,7 +237,7 @@ systemctl status docker --no-pager # Verify docker is running
 
 cd /mnt/newdata
 # Clone MicroSuite, if already exists, just change directory
-git clone https://github.com/vcTaz/MicroSuite.git || { echo "MicroSuite clone failed or already exists. Changing directory..." && cd MicroSuite; }
+git clone https://github.com/svassi04/MicroSuite.git || { echo "MicroSuite clone failed or already exists. Changing directory..." && cd MicroSuite; }
 cd MicroSuite
 
 # The setup_node_mydata.sh script typically handles Docker image builds.
@@ -417,3 +443,5 @@ chmod 644 /local/results.tar.gz || true
 
 # Print the RSpec to the enclosing page.
 pc.printRequestRSpec(request)
+
+```
