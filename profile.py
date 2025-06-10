@@ -1,6 +1,27 @@
+You're getting an `ImportError: No module named rspec` because `rspec` itself is not a standalone Python module you import directly.
+
+The components like `Install` and `Execute` services are part of the `geni.rspec.pg` submodule, which you've already imported as `pg` (i.e., `import geni.rspec.pg as pg`).
+
+The line causing the issue is:
+`import rspec # For clarity with rspec.Install, rspec.Execute etc.`
+
+You don't need this line. Instead, you should use `pg.Install` and `pg.Execute` since `pg` is the alias for `geni.rspec.pg`.
+
+**Here's how to fix it:**
+
+1.  **Remove** the line `import rspec # For clarity with rspec.Install, rspec.Execute etc.`
+2.  **Change** all occurrences of `rspec.Install` to `pg.Install`.
+3.  **Change** all occurrences of `rspec.Execute` to `pg.Execute`.
+
+Here's the corrected `profile.py`:
+
+```python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
 A CloudLab profile to measure process-level idleness of HDSearch
-from the MicroSuites (uSuite) benchmark suite.
+from the MicroSuites (μSuite) benchmark suite.
 
 This profile extends a generic multi-node setup to dedicate the first node
 to the HDSearch experiment with detailed profiling and power measurements.
@@ -18,10 +39,10 @@ Instructions:
 # Import the Portal object.
 import geni.portal as portal
 # Import the ProtoGENI library.
-import geni.rspec.pg as pg
+import geni.rspec.pg as pg # This imports pg, which contains Install and Execute
 # Emulab specific extensions.
 import geni.rspec.emulab as emulab
-import rspec # For clarity with rspec.Install, rspec.Execute etc.
+# REMOVED: import rspec # This line caused the ImportError
 
 # Create a portal context, needed to defined parameters
 pc = portal.Context()
@@ -156,7 +177,7 @@ for i in range(params.nodeCount):
         bs.placement = "any" # CloudLab will find space anywhere
 
         # Install essential packages for HDSearch experiment and profiling tools
-        node.addService(rspec.Install(package_contents='''
+        node.addService(pg.Install(package_contents='''
 apt update && \
 DEBIAN_FRONTEND=noninteractive apt install -y \
     docker.io \
@@ -177,7 +198,7 @@ DEBIAN_FRONTEND=noninteractive apt install -y \
 '''))
 
         # Create and deploy the experiment script (`run_experiment.sh`)
-        node.addService(rspec.Execute(shell="bash", command="""
+        node.addService(pg.Execute(shell="bash", command="""
 # Ensure the /mnt/newdata permissions are correct after automatic mount
 chmod -R 777 /mnt/newdata
 
@@ -416,3 +437,4 @@ chmod 644 /local/results.tar.gz || true
 # Print the RSpec to the enclosing page.
 pc.printRequestRSpec(request)
 
+```
