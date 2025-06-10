@@ -1,21 +1,3 @@
-You're getting an `ImportError: No module named rspec` because `rspec` itself is not a standalone Python module you import directly.
-
-The components like `Install` and `Execute` services are part of the `geni.rspec.pg` submodule, which you've already imported as `pg` (i.e., `import geni.rspec.pg as pg`).
-
-The line causing the issue is:
-`import rspec # For clarity with rspec.Install, rspec.Execute etc.`
-
-You don't need this line. Instead, you should use `pg.Install` and `pg.Execute` since `pg` is the alias for `geni.rspec.pg`.
-
-**Here's how to fix it:**
-
-1.  **Remove** the line `import rspec # For clarity with rspec.Install, rspec.Execute etc.`
-2.  **Change** all occurrences of `rspec.Install` to `pg.Install`.
-3.  **Change** all occurrences of `rspec.Execute` to `pg.Execute`.
-
-Here's the corrected `profile.py`:
-
-```python
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
@@ -39,10 +21,9 @@ Instructions:
 # Import the Portal object.
 import geni.portal as portal
 # Import the ProtoGENI library.
-import geni.rspec.pg as pg # This imports pg, which contains Install and Execute
+import geni.rspec.pg as pg
 # Emulab specific extensions.
 import geni.rspec.emulab as emulab
-# REMOVED: import rspec # This line caused the ImportError
 
 # Create a portal context, needed to defined parameters
 pc = portal.Context()
@@ -230,7 +211,7 @@ systemctl status docker --no-pager # Verify docker is running
 
 cd /mnt/newdata
 # Clone MicroSuite, if already exists, just change directory
-git clone https://github.com/svassi04/MicroSuite.git || { echo "MicroSuite clone failed or already exists. Changing directory..." && cd MicroSuite; }
+git clone https://github.com/vcTaz/MicroSuite.git || { echo "MicroSuite clone failed or already exists. Changing directory..." && cd MicroSuite; }
 cd MicroSuite
 
 # The setup_node_mydata.sh script typically handles Docker image builds.
@@ -436,5 +417,3 @@ chmod 644 /local/results.tar.gz || true
 
 # Print the RSpec to the enclosing page.
 pc.printRequestRSpec(request)
-
-```
