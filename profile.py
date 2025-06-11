@@ -196,7 +196,7 @@ for i in range(params.nodeCount):
     
     node.addService(pg.Execute(
         shell="sh",
-        command="sudo /local/cloudlab/microsuite/setup_mydata.sh >> /local/logs/setup_experiment.log 2>&1"))
+        command="sudo /local/cloudlab/microsuite/setup_experiment.sh >> /local/logs/setup_experiment.log 2>&1"))
 
     
 # Print the RSpec to the enclosing page.
