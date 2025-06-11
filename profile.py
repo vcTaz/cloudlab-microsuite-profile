@@ -22,8 +22,8 @@ request = pc.makeRequestRSpec()
 
 # Variable number of nodes.
 pc.defineParameter("nodeCount", "Number of Nodes", portal.ParameterType.INTEGER, 1,
-                    longDescription="If you specify more then one node, " +
-                    "we will create a lan for you.")
+                   longDescription="If you specify more then one node, " +
+                   "we will create a lan for you.")
 
 # Pick your OS.
 imageList = [
@@ -36,73 +36,73 @@ imageList = [
     ('urn:publicid:IDN+emulab.net+image+emulab-ops//FBSD122-64-STD', 'FreeBSD 12.2')]
 
 pc.defineParameter("osImage", "Select OS image",
-                    portal.ParameterType.IMAGE,
-                    imageList[0], imageList,
-                    longDescription="Most clusters have this set of images, " +
-                    "pick your favorite one.")
+                   portal.ParameterType.IMAGE,
+                   imageList[0], imageList,
+                   longDescription="Most clusters have this set of images, " +
+                   "pick your favorite one.")
 
 # Optional physical type for all nodes.
 pc.defineParameter("phystype",  "Optional physical node type",
-                    portal.ParameterType.STRING, "",
-                    longDescription="Specify a physical node type (pc3000,d710,etc) " +
-                    "instead of letting the resource mapper choose for you.")
+                   portal.ParameterType.STRING, "",
+                   longDescription="Specify a physical node type (pc3000,d710,etc) " +
+                   "instead of letting the resource mapper choose for you.")
 
 # Optionally create XEN VMs instead of allocating bare metal nodes.
 pc.defineParameter("useVMs",  "Use XEN VMs",
-                    portal.ParameterType.BOOLEAN, False,
-                    longDescription="Create XEN VMs instead of allocating bare metal nodes.")
+                   portal.ParameterType.BOOLEAN, False,
+                   longDescription="Create XEN VMs instead of allocating bare metal nodes.")
 
 # Optionally start X11 VNC server.
 pc.defineParameter("startVNC",  "Start X11 VNC on your nodes",
-                    portal.ParameterType.BOOLEAN, False,
-                    longDescription="Start X11 VNC server on your nodes. There will be " +
-                    "a menu option in the node context menu to start a browser based VNC " +
-                    "client. Works really well, give it a try!")
+                   portal.ParameterType.BOOLEAN, False,
+                   longDescription="Start X11 VNC server on your nodes. There will be " +
+                   "a menu option in the node context menu to start a browser based VNC " +
+                   "client. Works really well, give it a try!")
 
 # Optional link speed, normally the resource mapper will choose for you based on node availability
 pc.defineParameter("linkSpeed", "Link Speed",portal.ParameterType.INTEGER, 0,
-                    [(0,"Any"),(100000,"100Mb/s"),(1000000,"1Gb/s"),(10000000,"10Gb/s"),(25000000,"25Gb/s"),(100000000,"100Gb/s")],
-                    advanced=True,
-                    longDescription="A specific link speed to use for your lan. Normally the resource " +
-                    "mapper will choose for you based on node availability and the optional physical type.")
-                    
+                   [(0,"Any"),(100000,"100Mb/s"),(1000000,"1Gb/s"),(10000000,"10Gb/s"),(25000000,"25Gb/s"),(100000000,"100Gb/s")],
+                   advanced=True,
+                   longDescription="A specific link speed to use for your lan. Normally the resource " +
+                   "mapper will choose for you based on node availability and the optional physical type.")
+                   
 # For very large lans you might to tell the resource mapper to override the bandwidth constraints
 # and treat it a "best-effort"
 pc.defineParameter("bestEffort",  "Best Effort", portal.ParameterType.BOOLEAN, False,
-                     advanced=True,
-                     longDescription="For very large lans, you might get an error saying 'not enough bandwidth.' " +
-                     "This options tells the resource mapper to ignore bandwidth and assume you know what you " +
-                     "are doing, just give me the lan I ask for (if enough nodes are available).")
-                     
+                    advanced=True,
+                    longDescription="For very large lans, you might get an error saying 'not enough bandwidth.' " +
+                    "This options tells the resource mapper to ignore bandwidth and assume you know what you " +
+                    "are doing, just give me the lan I ask for (if enough nodes are available).")
+                    
 # Sometimes you want all of nodes on the same switch, Note that this option can make it impossible
 # for your experiment to map.
 pc.defineParameter("sameSwitch",  "No Interswitch Links", portal.ParameterType.BOOLEAN, False,
-                     advanced=True,
-                     longDescription="Sometimes you want all the nodes connected to the same switch. " +
-                     "This option will ask the resource mapper to do that, although it might make " +
-                     "it imppossible to find a solution. Do not use this unless you are sure you need it!")
+                    advanced=True,
+                    longDescription="Sometimes you want all the nodes connected to the same switch. " +
+                    "This option will ask the resource mapper to do that, although it might make " +
+                    "it imppossible to find a solution. Do not use this unless you are sure you need it!")
 
 # Optional ephemeral blockstore
 pc.defineParameter("tempFileSystemSize", "Temporary Filesystem Size",
-                    portal.ParameterType.INTEGER, 0,advanced=True,
-                    longDescription="The size in GB of a temporary file system to mount on each of your " +
-                    "nodes. Temporary means that they are deleted when your experiment is terminated. " +
-                    "The images provided by the system have small root partitions, so use this option " +
-                    "if you expect you will need more space to build your software packages or store " +
-                    "temporary files.")
-                    
-# Instead of a size, ask for all available space.  
+                   portal.ParameterType.INTEGER, 0,advanced=True,
+                   longDescription="The size in GB of a temporary file system to mount on each of your " +
+                   "nodes. Temporary means that they are deleted when your experiment is terminated. " +
+                   "The images provided by the system have small root partitions, so use this option " +
+                   "if you expect you will need more space to build your software packages or store " +
+                   "temporary files.")
+                   
+# Instead of a size, ask for all available space. 
 pc.defineParameter("tempFileSystemMax",  "Temp Filesystem Max Space",
-                     portal.ParameterType.BOOLEAN, False,
-                     advanced=True,
-                     longDescription="Instead of specifying a size for your temporary filesystem, " +
-                     "check this box to allocate all available disk space. Leave the size above as zero.")
+                    portal.ParameterType.BOOLEAN, False,
+                    advanced=True,
+                    longDescription="Instead of specifying a size for your temporary filesystem, " +
+                    "check this box to allocate all available disk space. Leave the size above as zero.")
 
 pc.defineParameter("tempFileSystemMount", "Temporary Filesystem Mount Point",
-                    portal.ParameterType.STRING,"/mydata",advanced=True,
-                    longDescription="Mount the temporary file system at this mount point; in general you " +
-                    "you do not need to change this, but we provide the option just in case your software " +
-                    "is finicky.")
+                   portal.ParameterType.STRING,"/mydata",advanced=True,
+                   longDescription="Mount the temporary file system at this mount point; in general you " +
+                   "you do not need to change this, but we provide the option just in case your software " +
+                   "is finicky.")
 
 # Retrieve the values the user specifies during instantiation.
 params = pc.bindParameters()
@@ -167,26 +167,37 @@ for i in range(params.nodeCount):
     # Install and start X11 VNC. Calling this informs the Portal that you want a VNC
     # option in the node context menu to create a browser VNC client.
     #
-    # If you prefer to start the VNC server yourself (on port 5901) then add nostart=True.  
+    # If you prefer to start the VNC server yourself (on port 5901) then add nostart=True. 
     #
     if params.startVNC:
         node.startVNC()
         pass
     pass
 
-    # --- START of changed/added lines ---
-    # Install your specific github repo for setup scripts
+    # Run startup script
     node.addService(pg.Install(
-        url="https://github.com/vcTaz/cloudlab-microsuite-profile/archive/main.tar.gz",
+        url="https://github.com/ucy-coast/cloudlab/archive/main.tar.gz",
         path='/local'))
-    # Rename the extracted directory to something simpler
+    
     node.addService(pg.Execute(
-        shell="sh", command="sudo mv /local/cloudlab-microsuite-profile-main /local/microsuite-profile"))
-    # Execute your setup script
+        shell="sh", command="sudo mv /local/cloudlab-main /local/cloudlab"))
+    
     node.addService(pg.Execute(
         shell="sh",
-        command="sudo /local/microsuite-profile/setup_experiment.sh >> /local/logs/setup_experiment.log 2>&1"))
-    # --- END of changed/added lines ---
+        command="sudo /local/cloudlab/startup.sh >> /local/logs/startup.log 2>&1"))
+    
+    node.addService(pg.Execute(
+        shell="sh",
+        command="git clone https://github.com/vcTaz/cloudlab-microsuite-profile.git /local/cloudlab/microsuite"))
+    
+    node.addService(pg.Execute(
+        shell="sh",
+        command="chmod +x /local/cloudlab/microsuite/setup_experiment.sh"))
+    
+    node.addService(pg.Execute(
+        shell="sh",
+        command="sudo /local/cloudlab/microsuite/setup_mydata.sh >> /local/logs/setup_experiment.log 2>&1"))
+
     
 # Print the RSpec to the enclosing page.
 pc.printRequestRSpec(request)
